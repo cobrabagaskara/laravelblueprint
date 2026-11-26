@@ -5,8 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Model
+class User extends Authenticatable implements FilamentUser
 {
     use HasFactory;
 
@@ -63,5 +66,13 @@ class User extends Model
     public function pollVotes(): HasMany
     {
         return $this->hasMany(PollVote::class);
+    }
+
+
+    // Wajib untuk Filament 5: Tentukan siapa yang boleh akses admin panel
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Hanya role 'admin' dan 'editor' yang bisa masuk ke panel Filament
+        return in_array($this->role, ['admin', 'editor']);
     }
 }
