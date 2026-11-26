@@ -37,8 +37,8 @@ class Poll extends Model
             'is_active' => 'boolean',
             'allow_multiple' => 'boolean',
             'total_votes' => 'integer',
-            'starts_at' => 'timestamp',
-            'ends_at' => 'timestamp',
+            'starts_at' => 'datetime',
+            'ends_at' => 'datetime',
         ];
     }
 

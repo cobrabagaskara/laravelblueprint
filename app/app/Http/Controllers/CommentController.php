@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\News;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -19,7 +20,7 @@ class CommentController extends Controller
         ]);
 
         $comment = $news->comments()->create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'author_name' => $validated['author_name'],
             'author_email' => $validated['author_email'],
             'content' => $validated['content'],

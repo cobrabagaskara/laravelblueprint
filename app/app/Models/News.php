@@ -51,7 +51,7 @@ class News extends Model
             'user_id' => 'integer',
             'is_featured' => 'boolean',
             'is_published' => 'boolean',
-            'published_at' => 'timestamp',
+            'published_at' => 'datetime',
             'view_count' => 'integer',
             'likes_count' => 'integer',
             'dislikes_count' => 'integer',

@@ -118,4 +118,56 @@ class PublicPortalControllerTest extends TestCase
             'total_votes' => 1,
         ]);
     }
+
+        public function test_visitor_can_search_published_news(): void
+    {
+        $matchingNews = News::factory()->create([
+            'title' => 'Inovasi Teknologi Laravel Terbaru',
+            'is_published' => true,
+        ]);
+        $otherNews = News::factory()->create([
+            'title' => 'Resep Kuliner Nusantara',
+            'is_published' => true,
+        ]);
+        $draftMatchingNews = News::factory()->create([
+            'title' => 'Draft Teknologi Laravel',
+            'is_published' => false,
+        ]);
+
+        $response = $this->getJson(route('news.index', ['q' => 'Laravel']));
+
+        $response->assertOk()
+            ->assertJsonFragment(['title' => $matchingNews->title])
+            ->assertJsonMissing(['title' => $otherNews->title])
+            ->assertJsonMissing(['title' => $draftMatchingNews->title]);
+    }
+
+        public function test_visitor_cannot_vote_twice_on_same_poll(): void
+    {
+        $poll = Poll::factory()->create(['is_active' => true, 'total_votes' => 0]);
+        $option = PollOption::factory()->create(['poll_id' => $poll->id, 'vote_count' => 0]);
+
+        // Vote pertama berhasil
+        $this->withHeader('X-Forwarded-For', '192.168.1.10')
+            ->postJson(route('polls.vote', $poll), [
+                'poll_option_id' => $option->id,
+            ])->assertCreated();
+           // dd(\App\Models\PollVote::all()->toArray()); // <-- Cek isi kolom yang tersimpa
+
+        // Vote kedua dari IP yang sama ditolak (422)
+        $this->withHeader('X-Forwarded-For', '192.168.1.10')
+            ->postJson(route('polls.vote', $poll), [
+                'poll_option_id' => $option->id,
+            ])->assertUnprocessable()
+            ->assertJsonFragment(['message' => 'Anda sudah memberikan suara pada polling ini.']);
+
+        // Pastikan total vote tetap 1
+        $this->assertDatabaseHas('polls', [
+            'id' => $poll->id,
+            'total_votes' => 1,
+        ]);
+    }
+
+    
+
 }

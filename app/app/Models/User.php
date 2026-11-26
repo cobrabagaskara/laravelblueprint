@@ -49,7 +49,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return [
             'id' => 'integer',
-            'email_verified_at' => 'timestamp',
+            'email_verified_at' => 'datetime',
         ];
     }
 

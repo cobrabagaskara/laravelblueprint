@@ -5,13 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\News;
 use App\Models\Tag;
+use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $news = News::with(['category', 'user', 'tags'])
             ->where('is_published', true)
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $keyword = '%' . $request->input('q') . '%';
+                $query->where(function ($subQuery) use ($keyword) {
+                    $subQuery->where('title', 'like', $keyword)
+                        ->orWhere('excerpt', 'like', $keyword)
+                        ->orWhere('content', 'like', $keyword);
+                });
+            })
             ->latest('published_at')
             ->paginate(10);
 
